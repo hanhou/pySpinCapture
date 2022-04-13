@@ -9,9 +9,10 @@ A python wrapper and GUI for the FLIR PySpin API to capture synchronized video a
 - Broadcasts file names to an UDP server (which should be run separately), so pybpod can save the name of each video file.
 - Frametimes and camera parameters are saved in .json files next to the movies
 ### Wishlist
-- GUI should check if camera parameters are correct - right now it just crashes if it receives an inappropriate variable from the user
+- GUI should check if camera parameters are correct - right now it just spits out an error in the terminal if it receives an inappropriate variable from the user
 - step-by-step windows installation guide
 - UDP control from bpod
+- online histogram of pixel intensities
 ## Installation step by step on Ubuntu 20.04
 Download and install Anaconda.
 ### Install Spinnaker SDK and API
@@ -78,9 +79,9 @@ A json file that contains the following fields. Saved for each recording next to
     "IMAGE_WIDTH": 900,
     "HEIGHT_OFFSET": 336,
     "WIDTH_OFFSET": 200,
-    "CAM_TIMEOUT": 50,
-    "MAX_FRAME_NUM": 10000,
-    "RECORDING_MODE": "continuous",
+    "CAM_TIMEOUT": 200, # this is how much time (in ms) the acquisition waits in tirggered mode between frames before starting a new file
+    "MAX_FRAME_NUM": 10000, # a file contains this many frames max
+    "RECORDING_MODE": "continuous", #continuous / triggered
     "CAMERA_IDX": 0,
     "DISPLAY_DOWNSAMPLE": 1,
     "CAMERA_NAME": "bottom",
