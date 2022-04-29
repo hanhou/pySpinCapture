@@ -13,10 +13,10 @@ import threading, queue
 from pathlib import Path
 import skvideo
 
-skvideo.setFFmpegPath('/usr/bin/') #set path to ffmpeg installation before importing io
-config_folder = '/home/labadmin/Data/pySpinCaptureConfig/'
-save_folder = '/home/labadmin/Data/Behavior_videos/'
-camera_names_in_order = ['bottom','side','body']
+skvideo.setFFmpegPath(R'C:\ffmpeg\bin') #set path to ffmpeg installation before importing io
+config_folder = R'D:\Video\pySpinCaptureConfig'
+save_folder = R'D:\Video\Video'
+camera_names_in_order = ['bottom'] # ,'side','body']
 bpod_address = ('10.128.54.244',1001)
 
 
