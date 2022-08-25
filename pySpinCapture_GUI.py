@@ -16,7 +16,7 @@ import skvideo
 skvideo.setFFmpegPath(R'C:\ffmpeg\bin') #set path to ffmpeg installation before importing io
 config_folder = R'D:\Video\pySpinCaptureConfig'
 save_folder = R'D:\Video\Video'
-camera_names_in_order = ['bottom'] # ,'side','body']
+serial_to_camera_name_mapper = {'22090687': 'bottom'} #,'side','body', 'test']}
 bpod_address = ('10.128.54.244',1001)
 
 
@@ -66,8 +66,9 @@ class CameraDisplay(QDialog): # standalone window for each camera
     def __init__(self, parent=None,camera_idx = None):
         super(CameraDisplay, self).__init__(parent)
         self.camera_idx = camera_idx
-        self.setWindowTitle('Camera {} - {}'.format(camera_idx,self.parent().camera_parameters_list[self.camera_idx]['CAMERA_NAME']))
-        self.setGeometry(1, 
+        self.setWindowTitle('Camera {} - {} - {}'.format(camera_idx, self.parent().camera_parameters_list[self.camera_idx]['CAMERA_NAME'],
+                                                    self.parent().camera_parameters_list[self.camera_idx]['CAMERA_SERIAL_NUMBER']))
+        self.setGeometry(100, 
                          500*camera_idx,
                          100,
                          100)  
@@ -151,7 +152,7 @@ class MainWindow(QDialog):
         self.handles = dict()
         self.title = 'pySpinCapture GUI'
         self.left = 900 # 10
-        self.top = 1 # 10
+        self.top = 100 # 10
         self.width = 500    # 1024
         self.height = 800  # 768
         self.config_folder =  config_folder
@@ -165,11 +166,25 @@ class MainWindow(QDialog):
         self.camThread_list = []
         self.camera_parameters_list = []
         
-        self.initUI()
+        # Only include Blackfly S
+        _to_remove = []
+        for camera_idx, cam in reversed(list(enumerate(self.cam_list))):  # Reversed so that we can always remove by Index without changing other indices
+            try:
+                cam.Init()
+            except:
+                self.cam_list.RemoveByIndex(camera_idx)
+                print(f'Skipped incompatible device')
+                continue
+            
+            if 'Blackfly S' not in cam.DeviceModelName():
+                print(f'Remove non-BFS device')
+                self.cam_list.RemoveByIndex(camera_idx)
         
+        self.initUI()
+
         for camera_idx, cam in enumerate(self.cam_list):
             self.commQueue_list.append(queue.Queue() )
-            cam.Init()
+            
             camera_display = CameraDisplay(self,camera_idx = camera_idx)
             self.camera_displays.append(camera_display)
             camera_display.show()
@@ -253,8 +268,10 @@ class MainWindow(QDialog):
             for i in range(len(self.cam_list)):
                 parameters_now = cameraCapture.default_parameters.copy()
                 parameters_now['CAMERA_IDX']=i
-                parameters_now['CAMERA_NAME']=camera_names_in_order[i]
+                parameters_now['CAMERA_SERIAL_NUMBER'] = self.cam_list[i].DeviceSerialNumber()
+                parameters_now['CAMERA_NAME']=serial_to_camera_name_mapper[parameters_now['CAMERA_SERIAL_NUMBER']]
                 self.camera_parameters_list.append(parameters_now)
+                
             subject_var_file = os.path.join(self.config_folder,'{}.json'.format(parameters_now['SUBJECT_NAME']))                       
             with open(subject_var_file, 'w') as outfile:
                 json.dump(self.camera_parameters_list, outfile, indent=4)
@@ -262,6 +279,7 @@ class MainWindow(QDialog):
             subject_var_file = os.path.join(self.config_folder,'{}.json'.format(subject_now))
             with open(subject_var_file) as json_file:
                 self.camera_parameters_list = json.load(json_file)
+                
         if 'camera_variables' not in self.handles.keys(): # GUI has to be initialized
             
             self.horizontalGroupbox_camera_variables =[]
@@ -269,7 +287,9 @@ class MainWindow(QDialog):
             layout = QGridLayout()
             for i,camera_parameters in enumerate(self.camera_parameters_list):
                 
-                horizontalGroupbox_camera_variables = QGroupBox("Camera: {} - {}".format(camera_parameters['CAMERA_IDX'],camera_parameters['CAMERA_NAME']))
+                horizontalGroupbox_camera_variables = QGroupBox("Camera: {} - {} - {}".format(camera_parameters['CAMERA_IDX'], 
+                                                                                              camera_parameters['CAMERA_NAME'],
+                                                                                              camera_parameters['CAMERA_SERIAL_NUMBER']))
                 
                 layout.addWidget(horizontalGroupbox_camera_variables ,i,0)
                 layout_setup = QGridLayout()
