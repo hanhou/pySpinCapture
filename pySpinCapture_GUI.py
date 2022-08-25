@@ -8,15 +8,19 @@ from PyQt5.QtCore import  Qt, QObject, pyqtSignal
 from PyQt5.QtGui import QPixmap
 import logging 
 import numpy as np
-import cameraCapture
 import threading, queue
 from pathlib import Path
-import skvideo
 
-skvideo.setFFmpegPath(R'C:\ffmpeg\bin') #set path to ffmpeg installation before importing io
+import skvideo
+skvideo.setFFmpegPath(R'C:\ffmpeg\bin') #set path to ffmpeg installation before importing io and cameraCapture
+import cameraCapture
+
+
 config_folder = R'D:\Video\pySpinCaptureConfig'
 save_folder = R'D:\Video\Video'
-serial_to_camera_name_mapper = {'22090687': 'bottom'} #,'side','body', 'test']}
+serial_to_camera_name_mapper = {'22093577': 'bottom',
+                                '22093578': 'side',
+                                '22090687': 'body'} #,'side','body', 'test']}
 bpod_address = ('10.128.54.244',1001)
 
 
@@ -128,6 +132,11 @@ class CameraDisplay(QDialog): # standalone window for each camera
                 camera_parameters['SAVE_MOVIE'] = False
                 camera_parameters['RECORDING_MODE'] = 'continuous'
                 camera_parameters['MAX_FRAME_NUM'] = 5000
+            else:
+                camera_parameters['SAVE_MOVIE'] = True
+                camera_parameters['RECORDING_MODE'] = 'triggered'
+                camera_parameters['MAX_FRAME_NUM'] = 100000
+                
             
             if camera_parameters['SAVE_MOVIE']:
                 Path(dir_name).mkdir( parents=True, exist_ok=True )
