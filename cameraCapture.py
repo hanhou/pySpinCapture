@@ -273,7 +273,7 @@ def MainLoop(cam,parameters_dict, commQueue, output_handles= None, directoryName
         tStart_pc = t_now
         frame_times = []
         bpod_message_sent = False
-        logtext = 'Camera {} waiting for frame triggers'.format( parameters_dict['CAMERA_IDX'])
+        logtext = 'Camera {} {} waiting for frame triggers'.format( parameters_dict['CAMERA_IDX'], parameters_dict['CAMERA_NAME'])
         output_handles['signal_communicate'].log_message.emit(logtext)
         for frame_i in range(parameters_dict['MAX_FRAME_NUM']): # main acquisition loop - iterate over frames
             while camQueue.empty() and commQueue.empty() and commQueue_.empty(): #wait until ready in a loop
@@ -346,7 +346,7 @@ def MainLoop(cam,parameters_dict, commQueue, output_handles= None, directoryName
             textlbl.configure(text='Capture complete, still writing to disk...') 
             window.update()
         #print('Capture ended')
-        logtext = 'Camera {} capture ended. {} frames captured.'.format( parameters_dict['CAMERA_IDX'],frame_i)
+        logtext = 'Camera {} {} capture ended. {} frames captured.'.format( parameters_dict['CAMERA_IDX'], parameters_dict['CAMERA_NAME'], frame_i)
         output_handles['signal_communicate'].log_message.emit(logtext)
         #   print('calculated frame rate: {:.2f}FPS'.format(numImages/(t2 - t1)))
         if parameters_dict['SAVE_MOVIE'] and frame_i>0: # save files only if there are frames to write
@@ -354,7 +354,7 @@ def MainLoop(cam,parameters_dict, commQueue, output_handles= None, directoryName
             imageWriteQueue.join() #wait until compression and saving queue is done writing to disk
             writer.close() #close to FFMPEG writer
             #print('File written')
-            logtext = 'Camera {} file written to disk'.format( parameters_dict['CAMERA_IDX'])
+            logtext = 'Camera {} {} file written to disk'.format( parameters_dict['CAMERA_IDX'], parameters_dict['CAMERA_NAME'])
             output_handles['signal_communicate'].log_message.emit(logtext)
             frametime_json_file = movieName[:movieName.find('.')]+'.json'   
             frame_times_dict = {'pc_movie_start_time':str(tStart_pc),

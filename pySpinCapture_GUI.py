@@ -73,7 +73,7 @@ class CameraDisplay(QDialog): # standalone window for each camera
         self.setWindowTitle('Camera {} - {} - {}'.format(camera_idx, self.parent().camera_parameters_list[self.camera_idx]['CAMERA_NAME'],
                                                     self.parent().camera_parameters_list[self.camera_idx]['CAMERA_SERIAL_NUMBER']))
         self.setGeometry(100, 
-                         500*camera_idx,
+                         400*camera_idx + 100,
                          100,
                          100)  
         
@@ -381,6 +381,9 @@ class MainWindow(QDialog):
         subject_var_file = os.path.join(self.config_folder,'{}.json'.format(subject_now))                       
         with open(subject_var_file, 'w') as outfile:
             json.dump(camera_parameters_list_new, outfile, indent=4)
+        
+        logging.info('Subject parameters saved to disk for {}'.format(subject_now)) 
+        
         self.camera_parameters_list = camera_parameters_list_new
         self.load_camera_parameters()
 
